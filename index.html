@@ -33,7 +33,36 @@
           </div>
         </div>
       </section>
-      <!-- Height and BMI cards land here (tickets #4, #6). -->
+      <section class="card" id="height-card" aria-labelledby="height-title">
+        <h2 id="height-title">Height</h2>
+        <div class="pair pair--stack-narrow">
+          <div class="field">
+            <label for="height-m">Metres</label>
+            <div class="field-control">
+              <input id="height-m" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" />
+              <span class="unit" aria-hidden="true">m</span>
+            </div>
+          </div>
+          <span class="pair-separator" aria-hidden="true">⇄</span>
+          <div class="field-group">
+            <div class="field">
+              <label for="height-ft">Feet</label>
+              <div class="field-control">
+                <input id="height-ft" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="next" />
+                <span class="unit" aria-hidden="true">ft</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="height-in">Inches</label>
+              <div class="field-control">
+                <input id="height-in" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" />
+                <span class="unit" aria-hidden="true">in</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- BMI card lands here (ticket #6). -->
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>

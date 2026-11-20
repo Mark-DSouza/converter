@@ -9,6 +9,33 @@ export function lbToKg(lb: number): number {
   return lb * KG_PER_LB;
 }
 
+/** Exact by definition (international inch, 1959). */
+const METRES_PER_INCH = 0.0254;
+const INCHES_PER_FOOT = 12;
+
+export interface FeetInches {
+  /** Whole feet. */
+  feet: number;
+  /** Remaining inches, 0 ≤ inches < 12. */
+  inches: number;
+}
+
+/**
+ * Splits a height into whole feet and remaining inches. The split happens at
+ * display precision (hundredths of an inch), so a value just under a whole
+ * foot reads 6 ft 0.00 in rather than 5 ft 12.00 in.
+ */
+export function metresToFeetInches(metres: number): FeetInches {
+  const totalInches = roundToHundredths(metres / METRES_PER_INCH);
+  const feet = Math.floor(totalInches / INCHES_PER_FOOT);
+  return { feet, inches: roundToHundredths(totalInches - feet * INCHES_PER_FOOT) };
+}
+
+/** Inches of 12 or more simply add up (5 ft 14 in = 6 ft 2 in). */
+export function feetInchesToMetres(feet: number, inches: number): number {
+  return (feet * INCHES_PER_FOOT + inches) * METRES_PER_INCH;
+}
+
 const MEASUREMENT = /^(\d+\.?\d*|\.\d+)$/;
 
 /**
@@ -23,11 +50,16 @@ export function parseMeasurement(text: string): number | null {
   return value > 0 ? value : null;
 }
 
+/**
+ * Rounds half up to two decimals. 1.005 is stored as 1.00499999..., so the
+ * scaled value is trimmed to 15 significant digits to remove that binary
+ * noise before rounding.
+ */
+function roundToHundredths(value: number): number {
+  return Math.round(Number((value * 100).toPrecision(15))) / 100;
+}
+
 /** Display rule for every value in the app: exactly two decimal places. */
 export function formatValue(value: number): string {
-  // 1.005 is stored as 1.00499999..., so plain toFixed(2) would give "1.00".
-  // Trimming the scaled value to 15 significant digits removes that binary
-  // noise before rounding half up.
-  const hundredths = Number((value * 100).toPrecision(15));
-  return (Math.round(hundredths) / 100).toFixed(2);
+  return roundToHundredths(value).toFixed(2);
 }

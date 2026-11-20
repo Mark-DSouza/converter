@@ -1,4 +1,4 @@
-import { formatValue, parseMeasurement } from "./conversions";
+import { parseMeasurement } from "./conversions";
 
 const DISALLOWED = /[^\d.,]/g;
 
@@ -10,31 +10,55 @@ function rejectDisallowedCharacters(input: HTMLInputElement): void {
   const typed = input.value;
   const cleaned = typed.replace(DISALLOWED, "");
   if (cleaned === typed) return;
-  const caret = input.selectionStart ?? typed.length;
-  const removedBeforeCaret = typed.slice(0, caret).length - typed.slice(0, caret).replace(DISALLOWED, "").length;
+  const beforeCaret = typed.slice(0, input.selectionStart ?? typed.length);
+  const newCaret = beforeCaret.replace(DISALLOWED, "").length;
   input.value = cleaned;
-  const newCaret = caret - removedBeforeCaret;
   input.setSelectionRange(newCaret, newCaret);
 }
 
 /**
- * Links two measurement inputs so that typing in either one live-updates the
- * other. The field being edited is never reformatted; the partner shows the
- * converted value to 2 dp, or blank when the typed value isn't usable.
+ * One side of a converter card, e.g. "kg", "lb" or "ft + in". Every side
+ * converts to and from one shared unit per card (kg for weight, m for height).
  */
-export function linkMeasurementPair(
-  a: HTMLInputElement,
-  b: HTMLInputElement,
-  aToB: (value: number) => number,
-  bToA: (value: number) => number,
-): void {
-  const link = (source: HTMLInputElement, target: HTMLInputElement, convert: (value: number) => number) => {
-    source.addEventListener("input", () => {
-      rejectDisallowedCharacters(source);
-      const value = parseMeasurement(source.value);
-      target.value = value === null ? "" : formatValue(convert(value));
-    });
+export interface MeasurementSide {
+  inputs: HTMLInputElement[];
+  /** The side's parsed values (null = blank/unusable) in the shared unit, or null for no value. */
+  read(values: (number | null)[]): number | null;
+  /** Display strings for a shared-unit value, one per input. */
+  show(value: number): string[];
+}
+
+/** A side with a single input whose unit converts to/from the shared unit. */
+export function singleInputSide(
+  input: HTMLInputElement,
+  toShared: (value: number) => number,
+  fromShared: (value: number) => string,
+): MeasurementSide {
+  return {
+    inputs: [input],
+    read: ([value]) => (value == null ? null : toShared(value)),
+    show: (value) => [fromShared(value)],
   };
-  link(a, b, aToB);
-  link(b, a, bToA);
+}
+
+/**
+ * Links two sides so that typing in any input live-updates the other side.
+ * Inputs on the side being edited are never rewritten; the other side shows
+ * the converted value, or blanks when the typed values aren't usable.
+ */
+export function linkMeasurementSides(a: MeasurementSide, b: MeasurementSide): void {
+  const link = (source: MeasurementSide, target: MeasurementSide) => {
+    for (const input of source.inputs) {
+      input.addEventListener("input", () => {
+        rejectDisallowedCharacters(input);
+        const value = source.read(source.inputs.map((field) => parseMeasurement(field.value)));
+        const shown = value === null ? [] : target.show(value);
+        target.inputs.forEach((field, index) => {
+          field.value = shown[index] ?? "";
+        });
+      });
+    }
+  };
+  link(a, b);
+  link(b, a);
 }
