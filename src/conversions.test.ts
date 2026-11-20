@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   feetInchesFromText,
+  formatDifference,
   feetInchesToMetres,
   formatValue,
   kgToLb,
@@ -90,6 +91,19 @@ describe("reading a measurement typed by the user", () => {
     expect(parseMeasurement("7a")).toBeNull();
     expect(parseMeasurement(".")).toBeNull();
     expect(parseMeasurement("1.2.3")).toBeNull();
+  });
+});
+
+describe("formatting a signed difference", () => {
+  it("shows a sign and two decimals, with a true minus sign", () => {
+    expect(formatDifference(1.5)).toBe("+1.50");
+    expect(formatDifference(-1.5625)).toBe("−1.56");
+  });
+
+  it("never shows ±0.00 for a real difference that rounds to zero", () => {
+    expect(formatDifference(0.00486)).toBe("+<0.01");
+    expect(formatDifference(-0.004)).toBe("−<0.01");
+    expect(formatDifference(0.005)).toBe("+0.01");
   });
 });
 

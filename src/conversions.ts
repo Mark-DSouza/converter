@@ -82,6 +82,16 @@ export function formatValue(value: number): string {
   return roundToHundredths(value).toFixed(2);
 }
 
+/**
+ * A signed difference to 2 dp with a true minus sign ("+1.50", "−1.56").
+ * A real difference too small to show reads "+<0.01" / "−<0.01", never ±0.00.
+ */
+export function formatDifference(value: number): string {
+  const sign = value < 0 ? "−" : "+";
+  const magnitude = roundToHundredths(Math.abs(value));
+  return magnitude === 0 && value !== 0 ? `${sign}<0.01` : `${sign}${magnitude.toFixed(2)}`;
+}
+
 /** A classification table: each category starts at its (inclusive) lower bound, ascending. */
 type Classification<Category extends string> = readonly (readonly [lowerBound: number, category: Category])[];
 
@@ -131,20 +141,22 @@ export interface BmiReport {
   asian: AsianCategory;
   /** Weight in kg that one BMI point represents at this height (= height²). */
   kgPerPoint: number;
-  /** The next whole BMI below the current one. */
-  down: BmiTarget;
+  /** The next whole BMI below the current one, or null when that would be below BMI 1. */
+  down: BmiTarget | null;
   /** The next whole BMI above the current one. */
   up: BmiTarget;
 }
 
 /**
- * BMI and both classifications. Categories are assigned from the BMI as
- * displayed (2 dp), so a value shown as 25.00 never reads Normal.
+ * BMI, both classifications, kg per BMI point and the next whole-BMI
+ * targets. Categories and targets both use the BMI as displayed (2 dp), so a
+ * value shown as 25.00 never reads Normal and targets 24 and 26.
  */
 export function bmiReport({ heightM, weightKg }: { heightM: number; weightKg: number }): BmiReport {
   const kgPerPoint = heightM * heightM;
   const bmi = weightKg / kgPerPoint;
   const shown = roundToHundredths(bmi);
+  const downBmi = Math.ceil(shown) - 1;
   const target = (wholeBmi: number): BmiTarget => {
     const targetKg = wholeBmi * kgPerPoint;
     return { bmi: wholeBmi, weightKg: targetKg, differenceKg: targetKg - weightKg };
@@ -155,7 +167,7 @@ export function bmiReport({ heightM, weightKg }: { heightM: number; weightKg: nu
     asian: classify(shown, ASIAN),
     kgPerPoint,
     // Strictly below / above the displayed BMI: 24.00 targets 23 and 25.
-    down: target(Math.ceil(shown) - 1),
+    down: downBmi >= 1 ? target(downBmi) : null,
     up: target(Math.floor(shown) + 1),
   };
 }

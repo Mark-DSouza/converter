@@ -14,9 +14,9 @@ describe("BMI report", () => {
 
   it("gives the weight at the next whole BMI down and up, and the difference", () => {
     const report = bmiReport({ heightM: 1.75, weightKg: 72 }); // BMI 23.51
-    expect(report.down.bmi).toBe(23);
-    expect(report.down.weightKg).toBeCloseTo(70.4375, 9);
-    expect(report.down.differenceKg).toBeCloseTo(-1.5625, 9);
+    expect(report.down?.bmi).toBe(23);
+    expect(report.down?.weightKg).toBeCloseTo(70.4375, 9);
+    expect(report.down?.differenceKg).toBeCloseTo(-1.5625, 9);
     expect(report.up.bmi).toBe(24);
     expect(report.up.weightKg).toBeCloseTo(73.5, 9);
     expect(report.up.differenceKg).toBeCloseTo(1.5, 9);
@@ -24,8 +24,8 @@ describe("BMI report", () => {
 
   it("at an exact whole BMI, targets the whole numbers either side", () => {
     const report = bmiReport({ heightM: 1.75, weightKg: 73.5 }); // BMI 24.00
-    expect(report.down.bmi).toBe(23);
-    expect(report.down.differenceKg).toBeCloseTo(-3.0625, 9);
+    expect(report.down?.bmi).toBe(23);
+    expect(report.down?.differenceKg).toBeCloseTo(-3.0625, 9);
     expect(report.up.bmi).toBe(25);
     expect(report.up.weightKg).toBeCloseTo(76.5625, 9);
     expect(report.up.differenceKg).toBeCloseTo(3.0625, 9);
@@ -33,10 +33,17 @@ describe("BMI report", () => {
 
   it("picks targets from the BMI as displayed, so 25.00 never targets 25", () => {
     const report = bmiReport({ heightM: 1, weightKg: 24.996 }); // shown as 25.00
-    expect(report.down.bmi).toBe(24);
-    expect(report.down.differenceKg).toBeCloseTo(-0.996, 9);
+    expect(report.down?.bmi).toBe(24);
+    expect(report.down?.differenceKg).toBeCloseTo(-0.996, 9);
     expect(report.up.bmi).toBe(26);
     expect(report.up.differenceKg).toBeCloseTo(1.004, 9);
+  });
+
+  it("offers no down target below BMI 1", () => {
+    expect(bmiReport({ heightM: 1, weightKg: 1 }).down).toBeNull(); // shown 1.00 → would be 0
+    expect(bmiReport({ heightM: 1.75, weightKg: 1 }).down).toBeNull(); // 0.33
+    expect(bmiReport({ heightM: 1, weightKg: 1.5 }).down?.bmi).toBe(1);
+    expect(bmiReport({ heightM: 1.75, weightKg: 1 }).up.bmi).toBe(1);
   });
 
   // With a height of 1 m, BMI equals the weight, so boundaries can be hit exactly.
