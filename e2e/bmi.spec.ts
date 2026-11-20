@@ -44,13 +44,31 @@ test("at an exact whole BMI, targets the whole numbers either side", async ({ pa
 
 test("hides the per-point and target lines while the card is blank", async ({ page }) => {
   const p = page$(page);
-  await p.kg.fill("72");
+  for (const clear of [p.kg, p.metres]) {
+    await p.kg.fill("72");
+    await p.metres.fill("1.75");
+    await expect(p.up).toBeVisible();
+    await clear.fill("");
+    await expect(p.perPoint).toBeHidden();
+    await expect(p.down).toBeHidden();
+    await expect(p.up).toBeHidden();
+  }
+});
+
+test("has no down target below BMI 1", async ({ page }) => {
+  const p = page$(page);
+  await p.kg.fill("1");
   await p.metres.fill("1.75");
-  await expect(p.up).toBeVisible();
-  await p.kg.fill("");
-  await expect(p.perPoint).toBeHidden();
+  await expect(p.value).toHaveText("0.33");
   await expect(p.down).toBeHidden();
-  await expect(p.up).toBeHidden();
+  await expect(p.up).toHaveText("↑ BMI 1.00 at 3.06 kg / 6.75 lb (+2.06 kg)");
+});
+
+test("shows <0.01 rather than ±0.00 for a tiny difference", async ({ page }) => {
+  const p = page$(page);
+  await p.kg.fill("18.62514");
+  await p.metres.fill("0.9"); // BMI 22.994, shown 22.99
+  await expect(p.up).toHaveText("↑ BMI 23.00 at 18.63 kg / 41.07 lb (+<0.01 kg)");
 });
 
 test("shows BMI and both categories from metric weight and height", async ({ page }) => {

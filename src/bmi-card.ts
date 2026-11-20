@@ -1,4 +1,4 @@
-import { bmiReport, formatValue, kgToLb, type BmiTarget } from "./conversions";
+import { bmiReport, formatDifference, formatValue, kgToLb, type BmiTarget } from "./conversions";
 import { requireElement } from "./dom";
 
 export interface BmiCard {
@@ -8,14 +8,42 @@ export interface BmiCard {
   setHeight(metres: number | null): void;
 }
 
-/** "3.06 kg / 6.75 lb" */
-const kgAndLb = (kg: number) => `${formatValue(kg)} kg / ${formatValue(kgToLb(kg))} lb`;
+type Direction = "down" | "up";
+const ARROWS: Record<Direction, string> = { down: "↓", up: "↑" };
 
-/** "+1.50 kg" or "−1.56 kg" (true minus sign). */
-const signedKg = (kg: number) => `${kg < 0 ? "−" : "+"}${formatValue(Math.abs(kg))} kg`;
+/** A run of text that never wraps across lines (e.g. "70.44 kg / 155.29 lb"). */
+function unbroken(text: string): HTMLSpanElement {
+  const span = document.createElement("span");
+  span.className = "nowrap";
+  span.textContent = text;
+  return span;
+}
 
-const targetLine = (arrow: string, target: BmiTarget) =>
-  `${arrow} BMI ${formatValue(target.bmi)} at ${kgAndLb(target.weightKg)} (${signedKg(target.differenceKg)})`;
+/** The arrow is decorative: the output's label already says down or up. */
+function arrow(direction: Direction): HTMLSpanElement {
+  const span = document.createElement("span");
+  span.setAttribute("aria-hidden", "true");
+  span.textContent = ARROWS[direction];
+  return span;
+}
+
+const kgAndLb = (kg: number) => unbroken(`${formatValue(kg)} kg / ${formatValue(kgToLb(kg))} lb`);
+
+/** "1 BMI point = 3.06 kg / 6.75 lb at your height" */
+function perPointLine(kgPerPoint: number): (Node | string)[] {
+  return ["1 BMI point = ", kgAndLb(kgPerPoint), " at your height"];
+}
+
+/** "↓ BMI 23.00 at 70.44 kg / 155.29 lb (−1.56 kg)" */
+function targetLine(direction: Direction, target: BmiTarget): (Node | string)[] {
+  return [
+    arrow(direction),
+    ` BMI ${formatValue(target.bmi)} at `,
+    kgAndLb(target.weightKg),
+    " ",
+    unbroken(`(${formatDifference(target.differenceKg)} kg)`),
+  ];
+}
 
 /** The output-only BMI card. It shows a prompt until both weight and height are known. */
 export function bmiCard(card: HTMLElement): BmiCard {
@@ -38,9 +66,10 @@ export function bmiCard(card: HTMLElement): BmiCard {
     value.value = report ? formatValue(report.bmi) : "";
     who.value = report?.who ?? "";
     asian.value = report?.asian ?? "";
-    perPoint.value = report ? `1 BMI point = ${kgAndLb(report.kgPerPoint)} at your height` : "";
-    down.value = report ? targetLine("↓", report.down) : "";
-    up.value = report ? targetLine("↑", report.up) : "";
+    perPoint.replaceChildren(...(report ? perPointLine(report.kgPerPoint) : []));
+    down.replaceChildren(...(report?.down ? targetLine("down", report.down) : []));
+    down.hidden = !report?.down;
+    up.replaceChildren(...(report ? targetLine("up", report.up) : []));
   };
 
   return {
