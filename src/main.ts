@@ -1,4 +1,4 @@
-import { feetInchesToMetres, formatValue, kgToLb, lbToKg, metresToFeetInches } from "./conversions";
+import { feetInchesFromText, formatValue, kgToLb, lbToKg, metresToFeetInches } from "./conversions";
 import { linkMeasurementSides, singleInputSide } from "./measurement-input";
 
 function input(id: string): HTMLInputElement {
@@ -15,10 +15,10 @@ linkMeasurementSides(
   singleInputSide(input("weight-lb"), lbToKg, (kg) => formatValue(kgToLb(kg))),
 );
 
-// Height card: shared unit m. Feet only or inches only is enough.
+// Height card: shared unit m.
 linkMeasurementSides(singleInputSide(input("height-m"), same, formatValue), {
   inputs: [input("height-ft"), input("height-in")],
-  read: ([feet, inches]) => (feet == null && inches == null ? null : feetInchesToMetres(feet ?? 0, inches ?? 0)),
+  read: ([feet, inches]) => feetInchesFromText(feet ?? "", inches ?? ""),
   show: (metres) => {
     const { feet, inches } = metresToFeetInches(metres);
     return [String(feet), formatValue(inches)];

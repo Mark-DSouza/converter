@@ -81,6 +81,29 @@ test("empty, zero or invalid input blanks the converted values", async ({ page }
   await expect(metres).toHaveValue("");
 });
 
+test("a malformed feet or inches value blanks metres, even if the other is valid", async ({ page }) => {
+  const { metres, feet, inches } = heightCard(page);
+  await inches.fill("9");
+  for (const text of [".", "1.2.3"]) {
+    await feet.fill("5");
+    await expect(metres).toHaveValue("1.75");
+    await feet.fill(text);
+    await expect(metres).toHaveValue("");
+  }
+  await feet.fill("5");
+  await inches.fill("1,2,3");
+  await expect(metres).toHaveValue("");
+});
+
+test("zero is fine in one field, but a zero total blanks metres", async ({ page }) => {
+  const { metres, feet, inches } = heightCard(page);
+  await feet.fill("0");
+  await inches.fill("9");
+  await expect(metres).toHaveValue("0.23");
+  await inches.fill("0");
+  await expect(metres).toHaveValue("");
+});
+
 test("does not accept negative or non-numeric characters", async ({ page }) => {
   const { metres, feet } = heightCard(page);
   await metres.pressSequentially("-1.8m");
