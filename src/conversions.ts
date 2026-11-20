@@ -36,7 +36,13 @@ export function feetInchesToMetres(feet: number, inches: number): number {
   return (feet * INCHES_PER_FOOT + inches) * METRES_PER_INCH;
 }
 
-const MEASUREMENT = /^(\d+\.?\d*|\.\d+)$/;
+const MEASUREMENT_PATTERN = /^(\d+\.?\d*|\.\d+)$/;
+
+/** A non-negative number typed by the user, or null if the text isn't one. */
+function readNumber(text: string): number | null {
+  const normalised = text.trim().replace(",", ".");
+  return MEASUREMENT_PATTERN.test(normalised) ? Number(normalised) : null;
+}
 
 /**
  * Reads a value typed into a measurement field. Returns null for anything
@@ -44,10 +50,22 @@ const MEASUREMENT = /^(\d+\.?\d*|\.\d+)$/;
  * the UI shows as a blank result. A comma is accepted as decimal separator.
  */
 export function parseMeasurement(text: string): number | null {
-  const normalised = text.trim().replace(",", ".");
-  if (!MEASUREMENT.test(normalised)) return null;
-  const value = Number(normalised);
-  return value > 0 ? value : null;
+  const value = readNumber(text);
+  return value !== null && value > 0 ? value : null;
+}
+
+/**
+ * Reads the feet and inches fields into metres. An empty field counts as
+ * absent, so feet only or inches only is enough, and zero is fine in one
+ * field. A malformed field, both fields empty, or a zero total give null.
+ */
+export function feetInchesFromText(feetText: string, inchesText: string): number | null {
+  const field = (text: string) => (text.trim() === "" ? 0 : readNumber(text));
+  const feet = field(feetText);
+  const inches = field(inchesText);
+  if (feet === null || inches === null) return null;
+  const metres = feetInchesToMetres(feet, inches);
+  return metres > 0 ? metres : null;
 }
 
 /**

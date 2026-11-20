@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  feetInchesFromText,
   feetInchesToMetres,
   formatValue,
   kgToLb,
@@ -12,7 +13,8 @@ describe("height conversion", () => {
   it("converts metres to whole feet and remaining inches", () => {
     const height = metresToFeetInches(1.75);
     expect(height.feet).toBe(5);
-    expect(height.inches).toBeCloseTo(8.9, 2);
+    expect(formatValue(height.inches)).toBe("8.90");
+    expect(formatValue(metresToFeetInches(1.8).inches)).toBe("10.87");
   });
 
   it("never shows 12.00 inches: rounding up carries into the next foot", () => {
@@ -33,6 +35,37 @@ describe("height conversion", () => {
   it("accepts feet only or inches only", () => {
     expect(feetInchesToMetres(6, 0)).toBeCloseTo(1.8288, 9);
     expect(feetInchesToMetres(0, 70)).toBeCloseTo(1.778, 9);
+  });
+});
+
+describe("reading feet and inches typed by the user", () => {
+  it("reads both fields into metres", () => {
+    expect(feetInchesFromText("5", "9")).toBeCloseTo(1.7526, 9);
+    expect(feetInchesFromText("5", "8,5")).toBeCloseTo(1.7399, 9);
+  });
+
+  it("treats an empty field as absent, so feet only or inches only is enough", () => {
+    expect(feetInchesFromText("6", "")).toBeCloseTo(1.8288, 9);
+    expect(feetInchesFromText("", "70")).toBeCloseTo(1.778, 9);
+    expect(feetInchesFromText(" ", "70")).toBeCloseTo(1.778, 9);
+  });
+
+  it("accepts zero in one field when the other has a value", () => {
+    expect(feetInchesFromText("0", "9")).toBeCloseTo(0.2286, 9);
+    expect(feetInchesFromText("5", "0")).toBeCloseTo(1.524, 9);
+  });
+
+  it("gives no value when either field is malformed, even if the other is valid", () => {
+    expect(feetInchesFromText("1.2.3", "9")).toBeNull();
+    expect(feetInchesFromText("5", "abc")).toBeNull();
+    expect(feetInchesFromText("5", ".")).toBeNull();
+    expect(feetInchesFromText("-5", "9")).toBeNull();
+  });
+
+  it("gives no value when both fields are empty or the total is zero", () => {
+    expect(feetInchesFromText("", "")).toBeNull();
+    expect(feetInchesFromText("0", "")).toBeNull();
+    expect(feetInchesFromText("0", "0")).toBeNull();
   });
 });
 

@@ -22,9 +22,9 @@ function rejectDisallowedCharacters(input: HTMLInputElement): void {
  */
 export interface MeasurementSide {
   inputs: HTMLInputElement[];
-  /** The side's parsed values (null = blank/unusable) in the shared unit, or null for no value. */
-  read(values: (number | null)[]): number | null;
-  /** Display strings for a shared-unit value, one per input. */
+  /** Reads the inputs' text (in input order) as a value in the shared unit, or null for no usable value. */
+  read(texts: string[]): number | null;
+  /** Display strings for a shared-unit value, one per input, in input order. */
   show(value: number): string[];
 }
 
@@ -36,7 +36,10 @@ export function singleInputSide(
 ): MeasurementSide {
   return {
     inputs: [input],
-    read: ([value]) => (value == null ? null : toShared(value)),
+    read: ([text]) => {
+      const value = parseMeasurement(text ?? "");
+      return value === null ? null : toShared(value);
+    },
     show: (value) => [fromShared(value)],
   };
 }
@@ -51,7 +54,7 @@ export function linkMeasurementSides(a: MeasurementSide, b: MeasurementSide): vo
     for (const input of source.inputs) {
       input.addEventListener("input", () => {
         rejectDisallowedCharacters(input);
-        const value = source.read(source.inputs.map((field) => parseMeasurement(field.value)));
+        const value = source.read(source.inputs.map((field) => field.value));
         const shown = value === null ? [] : target.show(value);
         target.inputs.forEach((field, index) => {
           field.value = shown[index] ?? "";
