@@ -49,6 +49,18 @@ test("clearing or entering zero blanks the other field", async ({ page }) => {
   await expect(lb).toHaveValue("");
 });
 
+test("text that isn't a number blanks the other field", async ({ page }) => {
+  const card = weightCard(page);
+  const kg = card.getByLabel("Kilograms");
+  const lb = card.getByLabel("Pounds");
+  for (const text of [".", "1.2.3", "1,2,3"]) {
+    await kg.fill("70");
+    await expect(lb).toHaveValue("154.32");
+    await kg.fill(text);
+    await expect(lb).toHaveValue("");
+  }
+});
+
 test("does not accept negative or non-numeric characters", async ({ page }) => {
   const card = weightCard(page);
   const kg = card.getByLabel("Kilograms");
@@ -64,6 +76,9 @@ test("asks for a numeric keyboard", async ({ page }) => {
 });
 
 test("filled Weight card looks right", async ({ page }) => {
-  await weightCard(page).getByLabel("Kilograms").fill("70");
+  const kg = weightCard(page).getByLabel("Kilograms");
+  await kg.fill("70");
+  // Screenshot the resting state, so focus-style changes don't churn this baseline.
+  await kg.blur();
   await expect(page).toHaveScreenshot("weight-filled.png", { fullPage: true });
 });

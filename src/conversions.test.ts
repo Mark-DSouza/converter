@@ -36,6 +36,12 @@ describe("display formatting", () => {
     expect(formatValue(72.5747792)).toBe("72.57");
   });
 
+  it("rounds half-way values up, despite binary floating point", () => {
+    expect(formatValue(1.005)).toBe("1.01");
+    expect(formatValue(2.675)).toBe("2.68");
+    expect(formatValue(1.125)).toBe("1.13");
+  });
+
   it("keeps trailing zeros so every value has two decimals", () => {
     expect(formatValue(70)).toBe("70.00");
     expect(formatValue(1.5)).toBe("1.50");

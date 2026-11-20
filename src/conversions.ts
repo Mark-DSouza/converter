@@ -25,5 +25,9 @@ export function parseMeasurement(text: string): number | null {
 
 /** Display rule for every value in the app: exactly two decimal places. */
 export function formatValue(value: number): string {
-  return value.toFixed(2);
+  // 1.005 is stored as 1.00499999..., so plain toFixed(2) would give "1.00".
+  // Trimming the scaled value to 15 significant digits removes that binary
+  // noise before rounding half up.
+  const hundredths = Number((value * 100).toPrecision(15));
+  return (Math.round(hundredths) / 100).toFixed(2);
 }
