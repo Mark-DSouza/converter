@@ -1,6 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <!-- Converter icon: ⇄ on the accent colour. Full-bleed so it also works as a
-       maskable icon; the arrows sit well inside the 80% safe zone. -->
+  <!-- Converter icon: ⇄ on the accent colour (the light-theme accent token in
+       src/styles.css). Full-bleed so it also works as a maskable icon; the
+       arrows sit well inside the 80% safe zone. -->
   <rect width="512" height="512" fill="#2357d9"/>
   <g fill="none" stroke="#ffffff" stroke-width="40" stroke-linecap="round" stroke-linejoin="round">
     <path d="M136 196H376M316 136L376 196L316 256"/>
