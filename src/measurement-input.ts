@@ -54,7 +54,7 @@ export function singleInputSide(
 export function linkMeasurementSides(
   a: MeasurementSide,
   b: MeasurementSide,
-  onChange: (value: number | null) => void = () => {},
+  onChange: (value: number | null) => void,
 ): void {
   const link = (source: MeasurementSide, target: MeasurementSide) => {
     for (const input of source.inputs) {

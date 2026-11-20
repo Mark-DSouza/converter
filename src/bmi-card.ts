@@ -1,29 +1,41 @@
-import { bmiReport } from "./bmi";
-import { formatValue } from "./conversions";
+import { bmiReport, formatValue } from "./conversions";
+import { requireElement } from "./dom";
 
-function element<T extends HTMLElement>(root: ParentNode, selector: string, type: new () => T): T {
-  const found = root.querySelector(selector);
-  if (!(found instanceof type)) throw new Error(`Missing ${selector}`);
-  return found;
+export interface BmiCard {
+  /** Current weight in kg, or null when the Weight card has no usable value. */
+  setWeight(kg: number | null): void;
+  /** Current height in m, or null when the Height card has no usable value. */
+  setHeight(metres: number | null): void;
 }
 
-/**
- * The output-only BMI card. Call the returned function with the current
- * height (m) and weight (kg); either being null shows the blank state.
- */
-export function bmiCard(card: HTMLElement): (heightM: number | null, weightKg: number | null) => void {
-  const hint = element(card, "[data-bmi-hint]", HTMLParagraphElement);
-  const result = element(card, "[data-bmi-result]", HTMLDListElement);
-  const value = element(card, "[data-bmi-value]", HTMLOutputElement);
-  const who = element(card, "[data-bmi-who]", HTMLOutputElement);
-  const asian = element(card, "[data-bmi-asian]", HTMLOutputElement);
+/** The output-only BMI card. It shows a prompt until both weight and height are known. */
+export function bmiCard(card: HTMLElement): BmiCard {
+  const hint = requireElement(card, "[data-bmi-hint]", HTMLParagraphElement);
+  const result = requireElement(card, "[data-bmi-result]", HTMLDListElement);
+  const value = requireElement(card, "[data-bmi-value]", HTMLOutputElement);
+  const who = requireElement(card, "[data-bmi-who]", HTMLOutputElement);
+  const asian = requireElement(card, "[data-bmi-asian]", HTMLOutputElement);
 
-  return (heightM, weightKg) => {
-    const report = heightM === null || weightKg === null ? null : bmiReport(heightM, weightKg);
+  let weightKg: number | null = null;
+  let heightM: number | null = null;
+
+  const render = () => {
+    const report = heightM === null || weightKg === null ? null : bmiReport({ heightM, weightKg });
     hint.hidden = report !== null;
     result.hidden = report === null;
     value.value = report ? formatValue(report.bmi) : "";
     who.value = report?.who ?? "";
     asian.value = report?.asian ?? "";
+  };
+
+  return {
+    setWeight(kg) {
+      weightKg = kg;
+      render();
+    },
+    setHeight(metres) {
+      heightM = metres;
+      render();
+    },
   };
 }

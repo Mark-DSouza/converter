@@ -77,6 +77,20 @@ test("updates live and blanks again when an input becomes invalid", async ({ pag
   await expect(p.value).toHaveText("");
 });
 
+test("long categories fit a 320 px phone without sideways scrolling", async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  const p = page$(page);
+  await p.metres.fill("1.75");
+  for (const [kg, who] of [["130", "Obese III"], ["50", "Underweight"]] as const) {
+    await p.kg.fill(kg);
+    await expect(p.who).toHaveText(who);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(overflow).toBeLessThanOrEqual(0);
+  }
+});
+
 test("filled BMI card with differing categories looks right", async ({ page }) => {
   const p = page$(page);
   await p.kg.fill("72");
