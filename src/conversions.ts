@@ -115,11 +115,26 @@ function classify<Category extends string>(bmi: number, table: Classification<Ca
   return category;
 }
 
+/** The weight at which BMI would reach a given whole number, at the same height. */
+export interface BmiTarget {
+  /** Whole-number BMI. */
+  bmi: number;
+  weightKg: number;
+  /** Target weight minus current weight: negative to lose, positive to gain. */
+  differenceKg: number;
+}
+
 export interface BmiReport {
   /** Body mass index at full precision (kg/m²). */
   bmi: number;
   who: WhoCategory;
   asian: AsianCategory;
+  /** Weight in kg that one BMI point represents at this height (= height²). */
+  kgPerPoint: number;
+  /** The next whole BMI below the current one. */
+  down: BmiTarget;
+  /** The next whole BMI above the current one. */
+  up: BmiTarget;
 }
 
 /**
@@ -127,7 +142,20 @@ export interface BmiReport {
  * displayed (2 dp), so a value shown as 25.00 never reads Normal.
  */
 export function bmiReport({ heightM, weightKg }: { heightM: number; weightKg: number }): BmiReport {
-  const bmi = weightKg / (heightM * heightM);
+  const kgPerPoint = heightM * heightM;
+  const bmi = weightKg / kgPerPoint;
   const shown = roundToHundredths(bmi);
-  return { bmi, who: classify(shown, WHO), asian: classify(shown, ASIAN) };
+  const target = (wholeBmi: number): BmiTarget => {
+    const targetKg = wholeBmi * kgPerPoint;
+    return { bmi: wholeBmi, weightKg: targetKg, differenceKg: targetKg - weightKg };
+  };
+  return {
+    bmi,
+    who: classify(shown, WHO),
+    asian: classify(shown, ASIAN),
+    kgPerPoint,
+    // Strictly below / above the displayed BMI: 24.00 targets 23 and 25.
+    down: target(Math.ceil(shown) - 1),
+    up: target(Math.floor(shown) + 1),
+  };
 }

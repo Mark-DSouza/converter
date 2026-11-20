@@ -65,7 +65,8 @@
       <section class="card" id="bmi-card" aria-labelledby="bmi-title">
         <h2 id="bmi-title">BMI</h2>
         <p class="bmi-hint" data-bmi-hint>Enter a weight and a height above.</p>
-        <dl class="bmi-result" data-bmi-result hidden>
+        <div data-bmi-result hidden>
+        <dl class="bmi-result">
           <div class="bmi-result-main">
             <dt id="bmi-value-label" class="visually-hidden">BMI</dt>
             <dd><output data-bmi-value aria-live="off" aria-labelledby="bmi-value-label"></output></dd>
@@ -79,6 +80,12 @@
             <dd><output data-bmi-asian aria-live="off" aria-labelledby="bmi-asian-label"></output></dd>
           </div>
         </dl>
+        <ul class="bmi-targets">
+          <li><output data-bmi-per-point aria-live="off" aria-label="One BMI point"></output></li>
+          <li><output data-bmi-down aria-live="off" aria-label="Next BMI down"></output></li>
+          <li><output data-bmi-up aria-live="off" aria-label="Next BMI up"></output></li>
+        </ul>
+        </div>
       </section>
     </main>
     <script type="module" src="/src/main.ts"></script>

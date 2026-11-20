@@ -17,8 +17,41 @@ const page$ = (page: Page) => {
     value: bmi.getByLabel("BMI", { exact: true }),
     who: bmi.getByLabel("WHO", { exact: true }),
     asian: bmi.getByLabel("Asian", { exact: true }),
+    perPoint: bmi.getByLabel("One BMI point", { exact: true }),
+    down: bmi.getByLabel("Next BMI down", { exact: true }),
+    up: bmi.getByLabel("Next BMI up", { exact: true }),
   };
 };
+
+test("shows what one BMI point weighs and the next whole BMI down and up", async ({ page }) => {
+  const p = page$(page);
+  await p.kg.fill("72");
+  await p.metres.fill("1.75");
+  await expect(p.value).toHaveText("23.51");
+  await expect(p.perPoint).toHaveText("1 BMI point = 3.06 kg / 6.75 lb at your height");
+  await expect(p.down).toHaveText("↓ BMI 23.00 at 70.44 kg / 155.29 lb (−1.56 kg)");
+  await expect(p.up).toHaveText("↑ BMI 24.00 at 73.50 kg / 162.04 lb (+1.50 kg)");
+});
+
+test("at an exact whole BMI, targets the whole numbers either side", async ({ page }) => {
+  const p = page$(page);
+  await p.kg.fill("73.5");
+  await p.metres.fill("1.75");
+  await expect(p.value).toHaveText("24.00");
+  await expect(p.down).toHaveText("↓ BMI 23.00 at 70.44 kg / 155.29 lb (−3.06 kg)");
+  await expect(p.up).toHaveText("↑ BMI 25.00 at 76.56 kg / 168.79 lb (+3.06 kg)");
+});
+
+test("hides the per-point and target lines while the card is blank", async ({ page }) => {
+  const p = page$(page);
+  await p.kg.fill("72");
+  await p.metres.fill("1.75");
+  await expect(p.up).toBeVisible();
+  await p.kg.fill("");
+  await expect(p.perPoint).toBeHidden();
+  await expect(p.down).toBeHidden();
+  await expect(p.up).toBeHidden();
+});
 
 test("shows BMI and both categories from metric weight and height", async ({ page }) => {
   const p = page$(page);
