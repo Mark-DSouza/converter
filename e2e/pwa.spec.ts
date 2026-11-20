@@ -25,6 +25,12 @@ test("serves a web app manifest under /converter/ with installable icons", async
     display: "standalone",
   });
 
+  // The page's theme colours come from the same source as the manifest's.
+  const themeColor = (scheme: string) =>
+    page.locator(`meta[name="theme-color"][media="(prefers-color-scheme: ${scheme})"]`).getAttribute("content");
+  expect(await themeColor("light")).toBe(manifest.theme_color);
+  expect(await themeColor("dark")).toBe("#111317");
+
   const icons: { src: string; sizes: string; type: string; purpose?: string }[] = manifest.icons;
   const has = (sizes: string, purpose?: string) =>
     icons.some((icon) => icon.sizes === sizes && icon.type === "image/png" && (purpose ? icon.purpose === purpose : true));

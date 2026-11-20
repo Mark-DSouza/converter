@@ -26,12 +26,12 @@
   --text-lg: 1.25rem;
   --text-xl: 1.75rem;
 
-  --color-bg: #f5f6f8;
+  --color-bg: #f5f6f8;  /* also PAGE_BACKGROUND.light in vite.config.ts */
   --color-surface: #ffffff;
   --color-text: #1a1d23;
   --color-text-muted: #5b6270;
   --color-border: #d9dde3;
-  --color-accent: #2357d9;
+  --color-accent: #2357d9;  /* also the icon background in public/icon.svg */
   --color-focus: var(--color-accent);
 
   color-scheme: light;
@@ -39,7 +39,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-bg: #111317;
+    --color-bg: #111317;  /* also PAGE_BACKGROUND.dark in vite.config.ts */
     --color-surface: #1b1e24;
     --color-text: #e8eaee;
     --color-text-muted: #9aa1ad;
