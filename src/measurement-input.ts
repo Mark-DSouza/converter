@@ -48,8 +48,14 @@ export function singleInputSide(
  * Links two sides so that typing in any input live-updates the other side.
  * Inputs on the side being edited are never rewritten; the other side shows
  * the converted value, or blanks when the typed values aren't usable.
+ * `onChange` receives the card's current value in the shared unit (or null)
+ * after every edit, whichever side it came from.
  */
-export function linkMeasurementSides(a: MeasurementSide, b: MeasurementSide): void {
+export function linkMeasurementSides(
+  a: MeasurementSide,
+  b: MeasurementSide,
+  onChange: (value: number | null) => void = () => {},
+): void {
   const link = (source: MeasurementSide, target: MeasurementSide) => {
     for (const input of source.inputs) {
       input.addEventListener("input", () => {
@@ -59,6 +65,7 @@ export function linkMeasurementSides(a: MeasurementSide, b: MeasurementSide): vo
         target.inputs.forEach((field, index) => {
           field.value = shown[index] ?? "";
         });
+        onChange(value);
       });
     }
   };

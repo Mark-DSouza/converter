@@ -73,7 +73,7 @@ export function feetInchesFromText(feetText: string, inchesText: string): number
  * scaled value is trimmed to 15 significant digits to remove that binary
  * noise before rounding.
  */
-function roundToHundredths(value: number): number {
+export function roundToHundredths(value: number): number {
   return Math.round(Number((value * 100).toPrecision(15))) / 100;
 }
 

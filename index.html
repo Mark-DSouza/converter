@@ -62,7 +62,24 @@
           </div>
         </div>
       </section>
-      <!-- BMI card lands here (ticket #6). -->
+      <section class="card" id="bmi-card" aria-labelledby="bmi-title">
+        <h2 id="bmi-title">BMI</h2>
+        <p class="bmi-hint" data-bmi-hint>Enter a weight and a height above.</p>
+        <dl class="bmi-result" data-bmi-result hidden>
+          <div class="bmi-result-main">
+            <dt id="bmi-value-label" class="visually-hidden">BMI</dt>
+            <dd><output data-bmi-value aria-labelledby="bmi-value-label"></output></dd>
+          </div>
+          <div>
+            <dt id="bmi-who-label">WHO</dt>
+            <dd><output data-bmi-who aria-labelledby="bmi-who-label"></output></dd>
+          </div>
+          <div>
+            <dt id="bmi-asian-label">Asian</dt>
+            <dd><output data-bmi-asian aria-labelledby="bmi-asian-label"></output></dd>
+          </div>
+        </dl>
+      </section>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>
