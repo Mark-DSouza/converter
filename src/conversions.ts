@@ -73,11 +73,61 @@ export function feetInchesFromText(feetText: string, inchesText: string): number
  * scaled value is trimmed to 15 significant digits to remove that binary
  * noise before rounding.
  */
-export function roundToHundredths(value: number): number {
+function roundToHundredths(value: number): number {
   return Math.round(Number((value * 100).toPrecision(15))) / 100;
 }
 
 /** Display rule for every value in the app: exactly two decimal places. */
 export function formatValue(value: number): string {
   return roundToHundredths(value).toFixed(2);
+}
+
+/** A classification table: each category starts at its (inclusive) lower bound, ascending. */
+type Classification<Category extends string> = readonly (readonly [lowerBound: number, category: Category])[];
+
+const WHO = [
+  [0, "Underweight"],
+  [18.5, "Normal"],
+  [25, "Overweight"],
+  [30, "Obese I"],
+  [35, "Obese II"],
+  [40, "Obese III"],
+] as const satisfies Classification<string>;
+
+export type WhoCategory = (typeof WHO)[number][1];
+
+/** WHO expert consultation (2004) cut-offs for Asian populations. */
+const ASIAN = [
+  [0, "Underweight"],
+  [18.5, "Normal"],
+  [23, "Overweight"],
+  [25, "Obese I"],
+  [30, "Obese II"],
+] as const satisfies Classification<string>;
+
+export type AsianCategory = (typeof ASIAN)[number][1];
+
+function classify<Category extends string>(bmi: number, table: Classification<Category>): Category {
+  let category = table[0]![1];
+  for (const [lowerBound, name] of table) {
+    if (bmi >= lowerBound) category = name;
+  }
+  return category;
+}
+
+export interface BmiReport {
+  /** Body mass index at full precision (kg/m²). */
+  bmi: number;
+  who: WhoCategory;
+  asian: AsianCategory;
+}
+
+/**
+ * BMI and both classifications. Categories are assigned from the BMI as
+ * displayed (2 dp), so a value shown as 25.00 never reads Normal.
+ */
+export function bmiReport({ heightM, weightKg }: { heightM: number; weightKg: number }): BmiReport {
+  const bmi = weightKg / (heightM * heightM);
+  const shown = roundToHundredths(bmi);
+  return { bmi, who: classify(shown, WHO), asian: classify(shown, ASIAN) };
 }
