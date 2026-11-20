@@ -1,5 +1,40 @@
 import { describe, expect, it } from "vitest";
-import { formatValue, kgToLb, lbToKg, parseMeasurement } from "./conversions";
+import {
+  feetInchesToMetres,
+  formatValue,
+  kgToLb,
+  lbToKg,
+  metresToFeetInches,
+  parseMeasurement,
+} from "./conversions";
+
+describe("height conversion", () => {
+  it("converts metres to whole feet and remaining inches", () => {
+    const height = metresToFeetInches(1.75);
+    expect(height.feet).toBe(5);
+    expect(height.inches).toBeCloseTo(8.9, 2);
+  });
+
+  it("never shows 12.00 inches: rounding up carries into the next foot", () => {
+    const height = metresToFeetInches(1.8287492); // 71.998 in
+    expect(height.feet).toBe(6);
+    expect(formatValue(height.inches)).toBe("0.00");
+  });
+
+  it("converts feet and inches to metres", () => {
+    expect(feetInchesToMetres(5, 9)).toBeCloseTo(1.7526, 9);
+  });
+
+  it("carries inches of 12 or more into feet", () => {
+    expect(feetInchesToMetres(5, 14)).toBeCloseTo(1.8796, 9);
+    expect(feetInchesToMetres(6, 2)).toBeCloseTo(1.8796, 9);
+  });
+
+  it("accepts feet only or inches only", () => {
+    expect(feetInchesToMetres(6, 0)).toBeCloseTo(1.8288, 9);
+    expect(feetInchesToMetres(0, 70)).toBeCloseTo(1.778, 9);
+  });
+});
 
 describe("reading a measurement typed by the user", () => {
   it("reads whole and decimal numbers", () => {

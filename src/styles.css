@@ -126,6 +126,27 @@ body {
   font-size: var(--text-lg);
 }
 
+/* Several fields forming one side of a pair (ft + in) */
+.field-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+/* On phones a side with a field group gets its own row, so inputs stay wide. */
+@media (max-width: 30rem) {
+  .pair--stack-narrow {
+    grid-template-columns: 1fr;
+  }
+
+  .pair--stack-narrow .pair-separator {
+    justify-self: center;
+    padding-block-end: 0;
+    rotate: 90deg;
+  }
+}
+
 .field {
   display: flex;
   flex-direction: column;
