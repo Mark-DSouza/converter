@@ -13,7 +13,27 @@
       <h1>Converter</h1>
     </header>
     <main class="cards" id="cards">
-      <!-- Weight, Height and BMI cards land here (tickets #3, #4, #6). -->
+      <section class="card" id="weight-card" aria-labelledby="weight-title">
+        <h2 id="weight-title">Weight</h2>
+        <div class="pair">
+          <div class="field">
+            <label for="weight-kg">Kilograms</label>
+            <div class="field-control">
+              <input id="weight-kg" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" />
+              <span class="unit" aria-hidden="true">kg</span>
+            </div>
+          </div>
+          <span class="pair-separator" aria-hidden="true">⇄</span>
+          <div class="field">
+            <label for="weight-lb">Pounds</label>
+            <div class="field-control">
+              <input id="weight-lb" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" />
+              <span class="unit" aria-hidden="true">lb</span>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Height and BMI cards land here (tickets #4, #6). -->
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>
