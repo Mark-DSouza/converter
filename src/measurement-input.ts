@@ -18,7 +18,7 @@ function rejectDisallowedCharacters(input: HTMLInputElement): void {
 
 /**
  * One side of a converter card, e.g. "kg", "lb" or "ft + in". Every side
- * converts to and from one shared unit per card (kg for weight, m for height).
+ * converts to and from one shared unit per card (kg for weight, m for height, km for distance).
  */
 export interface MeasurementSide {
   inputs: HTMLInputElement[];

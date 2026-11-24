@@ -152,11 +152,11 @@ describe("distance conversion", () => {
   it("converts miles to kilometres by the exact international mile", () => {
     expect(miToKm(1)).toBeCloseTo(1.609344, 12);
     expect(miToKm(26.2)).toBeCloseTo(42.1648128, 9);
+    expect(formatValue(miToKm(1))).toBe("1.61");
   });
 
   it("converts kilometres to miles", () => {
     expect(kmToMi(10)).toBeCloseTo(6.2137119224, 9);
     expect(formatValue(kmToMi(10))).toBe("6.21");
-    expect(formatValue(miToKm(1))).toBe("1.61");
   });
 });

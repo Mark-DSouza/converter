@@ -64,17 +64,17 @@ test("works offline after the first visit", async ({ page, context }) => {
   await page.reload();
 
   await expect(page.getByRole("heading", { level: 1, name: "Converter" })).toBeVisible();
-  await page.getByLabel("Kilograms").fill("70");
-  await expect(page.getByLabel("Pounds")).toHaveValue("154.32");
-  await page.getByLabel("Metres", { exact: true }).fill("1.75");
+  await page.getByRole("region", { name: "Weight" }).getByLabel("Kilograms").fill("70");
+  await expect(page.getByRole("region", { name: "Weight" }).getByLabel("Pounds")).toHaveValue("154.32");
+  await page.getByRole("region", { name: "Height" }).getByLabel("Metres").fill("1.75");
   await expect(page.getByRole("region", { name: "BMI" }).getByLabel("BMI", { exact: true })).toHaveText("22.86");
   await expect(page.locator("body")).toHaveCSS("font-family", /Inter Variable/);
 });
 
 test("stores no user data on the device", async ({ page }) => {
   await controlledByServiceWorker(page);
-  await page.getByLabel("Kilograms").fill("70");
-  await page.getByLabel("Metres", { exact: true }).fill("1.75");
+  await page.getByRole("region", { name: "Weight" }).getByLabel("Kilograms").fill("70");
+  await page.getByRole("region", { name: "Height" }).getByLabel("Metres").fill("1.75");
 
   const stored = await page.evaluate(async () => ({
     local: localStorage.length,
@@ -85,6 +85,6 @@ test("stores no user data on the device", async ({ page }) => {
   expect(stored).toEqual({ local: 0, session: 0, indexedDb: [], cookies: "" });
 
   await page.reload();
-  await expect(page.getByLabel("Kilograms")).toHaveValue("");
-  await expect(page.getByLabel("Metres", { exact: true })).toHaveValue("");
+  await expect(page.getByRole("region", { name: "Weight" }).getByLabel("Kilograms")).toHaveValue("");
+  await expect(page.getByRole("region", { name: "Height" }).getByLabel("Metres")).toHaveValue("");
 });

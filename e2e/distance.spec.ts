@@ -47,6 +47,11 @@ test("clearing, zero or text that isn't a number blanks the other field", async 
     await expect(mi).toHaveValue("6.21");
     await km.fill(text);
     await expect(mi).toHaveValue("");
+
+    await mi.fill("1");
+    await expect(km).toHaveValue("1.61");
+    await mi.fill(text);
+    await expect(km).toHaveValue("");
   }
 });
 
