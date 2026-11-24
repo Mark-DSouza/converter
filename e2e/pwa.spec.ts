@@ -66,7 +66,7 @@ test("works offline after the first visit", async ({ page, context }) => {
   await expect(page.getByRole("heading", { level: 1, name: "Converter" })).toBeVisible();
   await page.getByLabel("Kilograms").fill("70");
   await expect(page.getByLabel("Pounds")).toHaveValue("154.32");
-  await page.getByLabel("Metres").fill("1.75");
+  await page.getByLabel("Metres", { exact: true }).fill("1.75");
   await expect(page.getByRole("region", { name: "BMI" }).getByLabel("BMI", { exact: true })).toHaveText("22.86");
   await expect(page.locator("body")).toHaveCSS("font-family", /Inter Variable/);
 });
@@ -74,7 +74,7 @@ test("works offline after the first visit", async ({ page, context }) => {
 test("stores no user data on the device", async ({ page }) => {
   await controlledByServiceWorker(page);
   await page.getByLabel("Kilograms").fill("70");
-  await page.getByLabel("Metres").fill("1.75");
+  await page.getByLabel("Metres", { exact: true }).fill("1.75");
 
   const stored = await page.evaluate(async () => ({
     local: localStorage.length,
@@ -86,5 +86,5 @@ test("stores no user data on the device", async ({ page }) => {
 
   await page.reload();
   await expect(page.getByLabel("Kilograms")).toHaveValue("");
-  await expect(page.getByLabel("Metres")).toHaveValue("");
+  await expect(page.getByLabel("Metres", { exact: true })).toHaveValue("");
 });
