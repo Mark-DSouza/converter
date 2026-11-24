@@ -9,6 +9,17 @@ export function lbToKg(lb: number): number {
   return lb * KG_PER_LB;
 }
 
+/** Exact by definition (international mile, 1959). */
+const KM_PER_MI = 1.609344;
+
+export function kmToMi(km: number): number {
+  return km / KM_PER_MI;
+}
+
+export function miToKm(mi: number): number {
+  return mi * KM_PER_MI;
+}
+
 /** Exact by definition (international inch, 1959). */
 const METRES_PER_INCH = 0.0254;
 const INCHES_PER_FOOT = 12;

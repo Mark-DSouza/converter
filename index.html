@@ -90,6 +90,26 @@
           </ul>
         </div>
       </section>
+      <section class="card" id="distance-card" aria-labelledby="distance-title">
+        <h2 id="distance-title">Distance</h2>
+        <div class="pair">
+          <div class="field">
+            <label for="distance-km">Kilometres</label>
+            <div class="field-control">
+              <input id="distance-km" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" />
+              <span class="unit" aria-hidden="true">km</span>
+            </div>
+          </div>
+          <span class="pair-separator" aria-hidden="true">⇄</span>
+          <div class="field">
+            <label for="distance-mi">Miles</label>
+            <div class="field-control">
+              <input id="distance-mi" type="text" inputmode="decimal" autocomplete="off" enterkeyhint="done" />
+              <span class="unit" aria-hidden="true">mi</span>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>

@@ -1,5 +1,13 @@
 import { bmiCard } from "./bmi-card";
-import { feetInchesFromText, formatValue, kgToLb, lbToKg, metresToFeetInches } from "./conversions";
+import {
+  feetInchesFromText,
+  formatValue,
+  kgToLb,
+  kmToMi,
+  lbToKg,
+  metresToFeetInches,
+  miToKm,
+} from "./conversions";
 import { requireElement } from "./dom";
 import { linkMeasurementSides, singleInputSide } from "./measurement-input";
 
@@ -28,4 +36,11 @@ linkMeasurementSides(
     },
   },
   bmi.setHeight,
+);
+
+// Distance card: shared unit km. Feeds no other card.
+linkMeasurementSides(
+  singleInputSide(input("distance-km"), same, formatValue),
+  singleInputSide(input("distance-mi"), miToKm, (km) => formatValue(kmToMi(km))),
+  () => {},
 );
